@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173e32">
+  <meta name="description" content="Plan quick vegan Aldi meals with at least 30g of estimated protein per serving. Every recipe makes two portions and creates a combined shopping list.">
+  <title>Aldi Protein Kitchen — vegan meal planner</title>
+  <style>
+    :root {
+      --ink: #1d3028;
+      --muted: #64736a;
+      --green: #173e32;
+      --green-2: #285c49;
+      --lime: #c4e881;
+      --cream: #f5f4ed;
+      --paper: #fffefa;
+      --line: #e7e7db;
+      --coral: #f17b5c;
+      --gold: #f5d875;
+      --shadow: 0 16px 40px rgba(34, 58, 43, .09);
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+    a { color: inherit; }
+    .topbar {
+      height: 72px;
+      padding: 0 clamp(18px, 5vw, 76px);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--paper);
+      border-bottom: 1px solid rgba(29, 48, 40, .07);
+    }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; }
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      border-radius: 13px;
+      color: var(--green);
+      background: var(--lime);
+      font-size: 22px;
+    }
+    .brand-name { font-size: 15px; font-weight: 850; letter-spacing: -.035em; }
+    .brand-name span { display: block; color: var(--muted); font-size: 10px; font-weight: 750; letter-spacing: .14em; text-transform: uppercase; }
+    .toplink { color: var(--green); font-size: 13px; font-weight: 750; text-decoration: none; }
+    .toplink:hover { text-decoration: underline; }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      min-height: 350px;
+      padding: 52px clamp(22px, 7.2vw, 112px) 44px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(260px, .8fr);
+      align-items: center;
+      gap: 48px;
+      color: white;
+      background: var(--green);
+    }
+    .hero::before, .hero::after { content: ""; position: absolute; border: 1px solid rgba(255,255,255,.14); border-radius: 50%; pointer-events: none; }
+    .hero::before { width: 470px; height: 470px; right: -115px; top: -145px; }
+    .hero::after { width: 330px; height: 330px; right: -45px; top: -75px; }
+    .hero-copy, .hero-art { position: relative; z-index: 1; }
+    .eyebrow { color: var(--lime); font-size: 11px; font-weight: 850; letter-spacing: .16em; text-transform: uppercase; }
+    .hero h1 { max-width: 690px; margin: 12px 0 13px; font-size: clamp(40px, 5.1vw, 67px); line-height: .98; letter-spacing: -.065em; }
+    .hero h1 em { color: var(--lime); font-style: normal; }
+    .hero-copy > p { max-width: 550px; margin: 0; color: rgba(255,255,255,.78); font-size: 16px; }
+    .hero-chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 25px; }
+    .hero-chip { padding: 8px 12px; border: 1px solid rgba(255,255,255,.21); border-radius: 999px; color: white; font-size: 12px; font-weight: 700; }
+    .hero-art { justify-self: center; width: min(100%, 365px); min-height: 230px; display: grid; place-items: center; }
+    .plate {
+      position: relative;
+      width: 230px;
+      height: 230px;
+      display: grid;
+      place-items: center;
+      border: 13px solid #f8f3e7;
+      border-radius: 50%;
+      background: radial-gradient(circle at 52% 47%, #d6e78f 0 10%, transparent 10.5%), radial-gradient(circle at 36% 35%, #f0ac63 0 11%, transparent 11.5%), radial-gradient(circle at 65% 34%, #e57656 0 13%, transparent 13.5%), radial-gradient(circle at 39% 63%, #7ca85b 0 12%, transparent 12.5%), radial-gradient(circle at 64% 65%, #f6d875 0 13%, transparent 13.5%), #efe5c9;
+      box-shadow: 0 18px 45px rgba(0,0,0,.21), inset 0 0 0 3px rgba(32,54,40,.08);
+      transform: rotate(-8deg);
+    }
+    .plate::before { content: ""; position: absolute; inset: 19px; border: 1px solid rgba(23,62,50,.2); border-radius: 50%; }
+    .plate-center { position: absolute; display: grid; place-items: center; width: 83px; height: 83px; border-radius: 50%; background: rgba(255,254,250,.88); color: var(--green); font-size: 26px; box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+    .plate-tag { position: absolute; right: -37px; bottom: 4px; transform: rotate(8deg); padding: 10px 15px; border-radius: 14px; background: var(--lime); color: var(--green); font-size: 12px; font-weight: 850; box-shadow: 0 10px 20px rgba(0,0,0,.16); }
+    .hero-spark { position: absolute; color: var(--gold); font-size: 28px; }
+    .hero-spark.one { top: 14px; left: 16px; }
+    .hero-spark.two { bottom: 24px; left: 0; font-size: 19px; }
+
+    .how-strip { display: flex; align-items: center; justify-content: center; gap: 11px; padding: 17px 18px; color: var(--green); background: #e8efdc; text-align: center; font-size: 13px; font-weight: 720; }
+    .how-strip .dot { color: #9cae8a; }
+    .page-wrap { max-width: 1440px; margin: auto; padding: 52px clamp(18px, 4vw, 52px) 80px; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 22px; margin-bottom: 22px; }
+    .section-heading h2 { margin: 0; font-size: clamp(27px, 3vw, 38px); letter-spacing: -.045em; line-height: 1.08; }
+    .section-heading p { max-width: 580px; margin: 8px 0 0; color: var(--muted); font-size: 14px; }
+    .shuffle-btn, .primary-btn, .outline-btn, .icon-btn, .filter-btn {
+      border: 0;
+      transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+    .shuffle-btn { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 9px; padding: 12px 17px; border-radius: 999px; background: var(--lime); color: var(--green); font-size: 13px; font-weight: 850; box-shadow: 0 5px 15px rgba(61,94,52,.11); }
+    .shuffle-btn:hover, .primary-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 19px rgba(30,66,49,.18); }
+    .shuffle-btn .dice { font-size: 17px; }
+    .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 27px; }
+    .filter-btn { padding: 9px 14px; border: 1px solid var(--line); border-radius: 999px; background: rgba(255,254,250,.7); color: var(--muted); font-size: 12px; font-weight: 780; }
+    .filter-btn:hover { border-color: #abc48a; color: var(--green); }
+    .filter-btn.active { border-color: var(--green); background: var(--green); color: white; }
+    .ideas-note { display: flex; align-items: center; gap: 7px; min-height: 22px; margin: -15px 0 17px; color: var(--muted); font-size: 11px; }
+    .ideas-note button { padding: 0; border: 0; background: none; color: var(--green-2); cursor: pointer; font-size: 11px; font-weight: 850; text-decoration: underline; }
+
+    .planner-layout { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 25px; align-items: start; }
+    .recipes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+    .meal-card { min-width: 0; overflow: hidden; border: 1px solid rgba(39,61,47,.08); border-radius: 20px; background: var(--paper); box-shadow: 0 5px 18px rgba(34,58,43,.045); transition: transform .2s ease, box-shadow .2s ease; }
+    .meal-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .meal-photo { position: relative; height: 180px; display: grid; place-items: center; overflow: hidden; background: linear-gradient(135deg, #f5edd9, #e7eee0); }
+    .meal-photo::before { content: ""; position: absolute; width: 230px; height: 230px; right: -34px; top: -98px; border: 1px solid rgba(40,92,73,.15); border-radius: 50%; box-shadow: 0 0 0 22px rgba(255,255,255,.12), 0 0 0 46px rgba(255,255,255,.12); }
+    .meal-photo img { position: relative; z-index: 1; width: 72%; height: 152px; object-fit: contain; filter: drop-shadow(0 12px 12px rgba(40,47,35,.13)); mix-blend-mode: multiply; }
+    .photo-fallback { position: absolute; z-index: 0; font-size: 76px; }
+    .meal-photo .photo-sticker { position: absolute; z-index: 2; right: 13px; bottom: 12px; padding: 8px 10px; border: 1px solid rgba(29,48,40,.06); border-radius: 11px; background: rgba(255,254,250,.94); color: var(--green); font-size: 10px; font-weight: 850; }
+    .meal-card-body { padding: 17px 18px 18px; }
+    .tag-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+    .cuisine-tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 8px; border-radius: 999px; background: #eff4e9; color: #496d4c; font-size: 10px; font-weight: 850; letter-spacing: .035em; text-transform: uppercase; }
+    .time-label { color: var(--muted); font-size: 11px; font-weight: 750; }
+    .meal-card h3 { margin: 0; font-size: 20px; line-height: 1.15; letter-spacing: -.035em; }
+    .meal-card .summary { min-height: 42px; margin: 8px 0 13px; color: var(--muted); font-size: 12px; }
+    .meal-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; padding: 10px 0 12px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+    .stat { display: inline-flex; align-items: center; gap: 5px; color: #4c5c51; font-size: 11px; font-weight: 760; }
+    .stat strong { color: var(--green); }
+    .stat.protein { margin-left: auto; padding: 5px 8px; border-radius: 8px; background: #e8f2d9; color: #2b613e; }
+    .ingredients-peek { display: flex; align-items: center; gap: 8px; margin: 12px 0; min-height: 38px; }
+    .ingredient-thumb { flex: 0 0 35px; width: 35px; height: 35px; overflow: hidden; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 10px; background: #f8f7f1; text-decoration: none; }
+    .ingredient-thumb img { width: 100%; height: 100%; object-fit: contain; padding: 2px; mix-blend-mode: multiply; }
+    .ingredient-thumb .emoji { font-size: 18px; }
+    .more-ingredients { color: var(--muted); font-size: 11px; font-weight: 750; }
+    .card-actions { display: flex; align-items: center; gap: 8px; }
+    .primary-btn { flex: 1; min-height: 42px; padding: 10px 12px; border-radius: 12px; background: var(--green); color: white; font-size: 12px; font-weight: 820; }
+    .primary-btn.added { background: #e8f2d9; color: var(--green); }
+    .recipe-details { margin-top: 11px; border-top: 1px solid var(--line); }
+    .recipe-details summary { padding: 12px 0 2px; color: var(--green-2); cursor: pointer; list-style: none; font-size: 11px; font-weight: 820; }
+    .recipe-details summary::-webkit-details-marker { display: none; }
+    .recipe-details summary::after { content: "+"; float: right; font-size: 16px; line-height: 13px; }
+    .recipe-details[open] summary::after { content: "−"; }
+    .details-columns { display: grid; grid-template-columns: 1fr; gap: 14px; padding-top: 11px; }
+    .details-columns h4 { margin: 0 0 7px; color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+    .detail-ingredient-list { display: grid; gap: 6px; }
+    .detail-ingredient { display: flex; align-items: center; gap: 8px; min-width: 0; color: #425348; font-size: 11px; }
+    .detail-ingredient .ingredient-thumb { width: 30px; height: 30px; flex-basis: 30px; border-radius: 8px; }
+    .detail-ingredient a { text-decoration: none; }
+    .detail-ingredient a:hover { text-decoration: underline; }
+    .detail-ingredient-name { flex: 1; }
+    .detail-ingredient-amount { color: var(--muted); font-weight: 720; white-space: nowrap; }
+    .steps { margin: 0; padding-left: 17px; color: #526157; font-size: 11px; }
+    .steps li { padding: 0 0 6px 2px; }
+    .empty-filter { grid-column: 1 / -1; padding: 44px 20px; border: 1px dashed #becab4; border-radius: 18px; color: var(--muted); text-align: center; }
+
+    .planner-panel { position: sticky; top: 18px; overflow: hidden; border: 1px solid rgba(39,61,47,.09); border-radius: 20px; background: var(--paper); box-shadow: var(--shadow); }
+    .planner-head { padding: 20px 20px 16px; color: white; background: var(--green); }
+    .planner-head-top { display: flex; justify-content: space-between; align-items: start; gap: 8px; }
+    .planner-head h2 { margin: 0; font-size: 22px; letter-spacing: -.04em; }
+    .planner-head p { margin: 5px 0 0; color: rgba(255,255,255,.73); font-size: 11px; }
+    .batch-badge { display: grid; place-items: center; min-width: 44px; height: 44px; padding: 0 8px; border-radius: 14px; background: var(--lime); color: var(--green); font-size: 17px; font-weight: 900; }
+    .batch-badge small { display: block; font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
+    .plan-summary { display: flex; gap: 7px; margin-top: 15px; }
+    .summary-pill { flex: 1; padding: 8px 9px; border: 1px solid rgba(255,255,255,.17); border-radius: 10px; color: rgba(255,255,255,.86); font-size: 10px; }
+    .summary-pill strong { display: block; color: white; font-size: 15px; }
+    .panel-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--line); }
+    .panel-tab { padding: 13px 10px; border: 0; border-bottom: 2px solid transparent; background: white; color: var(--muted); font-size: 11px; font-weight: 820; }
+    .panel-tab.active { border-bottom-color: var(--coral); color: var(--green); }
+    .panel-content { max-height: min(64vh, 620px); overflow: auto; padding: 15px; }
+    .panel-content[hidden] { display: none; }
+    .empty-plan { display: grid; justify-items: center; padding: 23px 12px 27px; color: var(--muted); text-align: center; }
+    .empty-plan .basket { display: grid; place-items: center; width: 51px; height: 51px; margin-bottom: 10px; border-radius: 16px; background: #edf2e4; font-size: 24px; }
+    .empty-plan strong { margin-bottom: 4px; color: var(--green); font-size: 13px; }
+    .empty-plan span { max-width: 220px; font-size: 11px; }
+    .plan-list { display: grid; gap: 9px; }
+    .plan-item { display: grid; grid-template-columns: 1fr auto; gap: 8px; padding: 11px; border: 1px solid var(--line); border-radius: 12px; }
+    .plan-item-title { font-size: 11px; font-weight: 820; line-height: 1.25; }
+    .plan-item-sub { margin-top: 4px; color: var(--muted); font-size: 10px; }
+    .quantity-control { display: flex; align-items: center; gap: 5px; }
+    .icon-btn { width: 26px; height: 26px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 8px; background: white; color: var(--green); font-size: 15px; font-weight: 800; }
+    .icon-btn:hover { background: #edf2e4; }
+    .quantity-number { min-width: 17px; text-align: center; font-size: 11px; font-weight: 850; }
+    .panel-actions { display: flex; gap: 8px; margin-top: 13px; }
+    .outline-btn { flex: 1; padding: 10px 7px; border: 1px solid var(--line); border-radius: 10px; background: white; color: var(--green); font-size: 10px; font-weight: 820; }
+    .outline-btn:hover { background: #f1f5e8; }
+    .list-note { margin: 0 0 13px; color: var(--muted); font-size: 10px; }
+    .aisle-heading { margin: 14px 0 7px; color: #657269; font-size: 9px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; }
+    .shop-row { display: flex; align-items: center; gap: 9px; padding: 8px 0; border-top: 1px solid #f0f0e8; }
+    .shop-row:first-of-type { border-top: 0; }
+    .shop-row input { width: 16px; height: 16px; accent-color: var(--green); }
+    .shop-row.checked .shop-name { color: #91988d; text-decoration: line-through; }
+    .shop-thumb { flex: 0 0 33px; width: 33px; height: 33px; display: grid; place-items: center; overflow: hidden; border: 1px solid var(--line); border-radius: 9px; background: #f8f7f1; }
+    .shop-thumb img { width: 100%; height: 100%; padding: 2px; object-fit: contain; mix-blend-mode: multiply; }
+    .shop-thumb .emoji { font-size: 17px; }
+    .shop-text { min-width: 0; flex: 1; }
+    .shop-name { display: block; font-size: 10px; font-weight: 770; line-height: 1.25; }
+    .shop-amount { display: block; margin-top: 3px; color: var(--muted); font-size: 9px; }
+    .shop-product-link { color: var(--green-2); font-size: 9px; font-weight: 800; text-decoration: none; white-space: nowrap; }
+    .shop-product-link:hover { text-decoration: underline; }
+    .nutrition-note { margin: 19px 0 0; padding: 12px 13px; border-radius: 12px; background: #f3f4ec; color: #69756b; font-size: 10px; }
+    .nutrition-note strong { color: var(--green); }
+    .footer { padding: 22px 18px; border-top: 1px solid var(--line); color: var(--muted); text-align: center; font-size: 10px; }
+    .footer a { color: var(--green); font-weight: 750; }
+    .toast { position: fixed; z-index: 10; left: 50%; bottom: 25px; transform: translate(-50%, 16px); opacity: 0; pointer-events: none; padding: 12px 18px; border-radius: 12px; background: var(--green); color: white; box-shadow: var(--shadow); font-size: 12px; font-weight: 750; transition: .2s ease; }
+    .toast.show { opacity: 1; transform: translate(-50%, 0); }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+    @media (max-width: 980px) {
+      .hero { grid-template-columns: 1fr 260px; gap: 20px; }
+      .planner-layout { grid-template-columns: minmax(0, 1fr) 300px; gap: 17px; }
+      .recipes-grid { gap: 13px; }
+      .meal-card-body { padding: 15px; }
+    }
+    @media (max-width: 760px) {
+      .topbar { height: 62px; padding-inline: 18px; }
+      .hero { grid-template-columns: 1fr; min-height: auto; padding: 43px 23px 35px; }
+      .hero h1 { max-width: 560px; font-size: clamp(42px, 11vw, 60px); }
+      .hero-copy > p { font-size: 14px; }
+      .hero-art { position: absolute; right: -32px; bottom: -63px; width: 190px; min-height: 190px; opacity: .45; }
+      .plate { width: 150px; height: 150px; border-width: 9px; }
+      .plate::before { inset: 12px; }
+      .plate-center { width: 53px; height: 53px; font-size: 17px; }
+      .plate-tag { right: -24px; bottom: -4px; font-size: 9px; }
+      .hero-spark { display: none; }
+      .how-strip { justify-content: flex-start; overflow: auto; white-space: nowrap; font-size: 11px; }
+      .page-wrap { padding: 38px 16px 60px; }
+      .section-heading { align-items: start; flex-direction: column; gap: 15px; }
+      .planner-layout { grid-template-columns: 1fr; }
+      .recipes-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .planner-panel { position: static; order: 2; }
+      .planner-panel .panel-content { max-height: 440px; }
+    }
+    @media (max-width: 520px) {
+      .recipes-grid { grid-template-columns: 1fr; }
+      .meal-photo { height: 165px; }
+      .meal-card .summary { min-height: 0; }
+      .meal-card h3 { font-size: 21px; }
+      .planner-head { padding: 17px; }
+      .how-strip .dot { display: none; }
+      .how-strip { gap: 18px; }
+    }
+    @media print {
+      body { background: white; }
+      .topbar, .hero, .how-strip, .recipes-section, .panel-tabs, .panel-actions, .nutrition-note, .footer, .toast { display: none !important; }
+      .page-wrap { max-width: none; padding: 0; }
+      .planner-layout { display: block; }
+      .planner-panel { position: static; border: 0; box-shadow: none; }
+      .planner-head { display: block; padding: 0 0 12px; background: white; color: black; }
+      .planner-head p { color: #555; }
+      .batch-badge { display: none; }
+      .panel-content { display: none !important; max-height: none; padding: 0; overflow: visible; }
+      #shopping-content { display: block !important; }
+      .shop-row { break-inside: avoid; }
+      .shop-name { font-size: 13px; }
+      .shop-amount { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Aldi Protein Kitchen home">
+      <span class="brand-mark" aria-hidden="true">🥬</span>
+      <span class="brand-name">Protein Kitchen<span>vegan · Aldi · UK</span></span>
+    </a>
+    <a class="toplink" href="#meal-plan">Your meal plan <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <div class="eyebrow">A little prep. A lot of protein.</div>
+        <h1 id="hero-title">Cook once.<br><em>Eat twice.</em></h1>
+        <p>Easy vegan meals made with Aldi ingredients. Pick a recipe for lunch and dinner, then let your shopping list sort itself out.</p>
+        <div class="hero-chips" aria-label="Meal planner features">
+          <span class="hero-chip">🌱 100% vegan</span>
+          <span class="hero-chip">💪 30g+ protein per serving</span>
+          <span class="hero-chip">⏱ 10–30 minutes</span>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <span class="hero-spark one">✦</span><span class="hero-spark two">✳</span>
+        <div class="plate"><div class="plate-center">🥗</div><div class="plate-tag">2 portions, one pan</div></div>
+      </div>
+    </section>
+    <div class="how-strip"><span>Choose a meal</span><span class="dot">•</span><span>Add a cooking batch</span><span class="dot">•</span><span>Get one combined Aldi list</span></div>
+
+    <div class="page-wrap">
+      <section class="recipes-section" aria-labelledby="recipes-title">
+        <div class="section-heading">
+          <div>
+            <h2 id="recipes-title">Find your next favourite</h2>
+            <p>Every recipe makes two servings: one for lunch and one for dinner. Filter by cuisine or shuffle the ideas.</p>
+          </div>
+          <button class="shuffle-btn" id="shuffle-btn" type="button"><span class="dice" aria-hidden="true">⚄</span> Shuffle meal ideas</button>
+        </div>
+        <div class="filter-row" id="filters" role="group" aria-label="Filter recipes by cuisine"></div>
+        <div class="ideas-note" id="ideas-note" aria-live="polite"></div>
+      </section>
+
+      <div class="planner-layout">
+        <section class="recipes-section" aria-label="Vegan meal ideas">
+          <div class="recipes-grid" id="recipes-grid" aria-live="polite"></div>
+        </section>
+
+        <aside class="planner-panel" id="meal-plan" aria-label="Your meal plan and shopping list">
+          <div class="planner-head panel-head">
+            <div class="planner-head-top">
+              <div><h2>Your plan</h2><p>Each batch cooks two meals</p></div>
+              <div class="batch-badge" id="batch-badge"><span>0</span><small>batches</small></div>
+            </div>
+            <div class="plan-summary">
+              <div class="summary-pill"><strong id="total-portions">0</strong>portions planned</div>
+              <div class="summary-pill"><strong id="unique-items">0</strong>shopping items</div>
+            </div>
+          </div>
+          <div class="panel-tabs" role="tablist" aria-label="Planner view">
+            <button class="panel-tab active" id="plan-tab" type="button" role="tab" aria-selected="true" aria-controls="plan-content">Meals <span id="meal-tab-count">0</span></button>
+            <button class="panel-tab" id="shopping-tab" type="button" role="tab" aria-selected="false" aria-controls="shopping-content">Shopping list</button>
+          </div>
+          <div class="panel-content" id="plan-content" role="tabpanel" aria-labelledby="plan-tab"></div>
+          <div class="panel-content" id="shopping-content" role="tabpanel" aria-labelledby="shopping-tab" hidden></div>
+        </aside>
+      </div>
+
+      <p class="nutrition-note"><strong>Protein is an estimate.</strong> We use Aldi label values where available and typical values for fresh ingredients. Products, recipes and nutrition can change; check the pack in store. Quantities in the list are recipe amounts, with pack guidance where available.</p>
+    </div>
+  </main>
+  <footer class="footer">Product pack images and listings link to <a href="https://www.aldi.co.uk/" target="_blank" rel="noreferrer">ALDI UK</a>. Availability and prices vary by store.</footer>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const products = {
+      mince: {
+        name: "Plant Menu Meat-Free Mince", pack: 400, packText: "400g pack", unit: "g", protein: 16.2,
+        page: "https://www.aldi.co.uk/product/plant-menu-meat-free-mince-000000000371357006",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/a9084a8e-23db-4444-9751-48554c7d283c/MeatFree%20Mince", emoji: "🥣"
+      },
+      tofu: {
+        name: "Plant Menu Organic Super Firm Tofu", pack: 200, packText: "200g pack", unit: "g", protein: 14.13,
+        page: "https://www.aldi.co.uk/product/plant-menu-organic-super-firm-tofu-000000000513086001",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/558251d5-9b1c-4ff2-9ecb-c06398566311/Organic%20Super%20Firm%20Tofu", emoji: "🧊"
+      },
+      smokedTofu: {
+        name: "Plant Menu Organic Smoked Tofu", pack: 180, packText: "180g pack", unit: "g", protein: 16.08,
+        page: "https://www.aldi.co.uk/product/plant-menu-organic-smoked-tofu-000000000513086002",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/a8489baf-688b-4979-ba43-adcf9fb2ad55/Organic%20Smoked%20Tofu", emoji: "🧊"
+      },
+      noChicken: {
+        name: "Plant Menu Garlic & Herb No Chicken Pieces", pack: 240, packText: "240g pack", unit: "g", protein: 20.66,
+        page: "https://www.aldi.co.uk/product/plant-menu-garlic-herb-no-chicken-pieces-000000000550408002",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/3d87453e-7998-4eb7-9af6-bfeac2210735/Garlic%20%20Herb%20No%20Chicken%20Pieces", emoji: "🌱"
+      },
+      lentilTin: {
+        name: "Four Seasons Tinned Lentils", pack: 240, packText: "400g tin (~240g drained)", unit: "g", protein: 5.97,
+        page: "https://www.aldi.co.uk/product/four-seasons-tinned-lentils-000000000627180002",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/705229ea-da06-4bdf-92d4-fdf39e4b077b/Tinned%20Lentils", emoji: "🥫"
+      },
+      chickpeas: {
+        name: "Four Seasons Chickpeas", pack: 265, packText: "400g tin (about 265g drained)", unit: "g", protein: 7.2,
+        page: "https://www.aldi.co.uk/product/four-seasons-chickpeas-000000000000625258",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/b031169e-11c8-4613-963c-fcbdcb59afd5/Chickpeas", emoji: "🥫"
+      },
+      kidneyBeans: {
+        name: "Four Seasons Red Kidney Beans", pack: 240, packText: "400g tin (about 240g drained)", unit: "g", protein: 7.6,
+        page: "https://www.aldi.co.uk/product/four-seasons-red-kidney-beans-in-water-000000000000284569",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/42c7e646-5dab-4aa3-9fbb-be3184fd931c/Red%20Kidney%20Beans%20in%20Water", emoji: "🥫"
+      },
+      rice: {
+        name: "Worldwide Foods Wholegrain Rice Pouch", pack: 250, packText: "250g pouch", unit: "g", protein: 4.43,
+        page: "https://www.aldi.co.uk/product/worldwide-foods-wholegrain-rice-pouch-000000000000335662",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/eb2e5c75-19c1-4e87-8887-c93ecb5f73c6/Wholegrain%20Rice%20Pouch", emoji: "🍚"
+      },
+      pasta: {
+        name: "Cucina Wholewheat Spaghetti", pack: 500, packText: "500g bag", unit: "g", protein: 12.5,
+        page: "https://www.aldi.co.uk/product/cucina-spaghetti-wholewheat-pasta-000000000308498002",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/55d9b501-0e69-48d7-9e6e-e9db1c842457/Spaghetti%20Wholewheat%20Pasta", emoji: "🍝"
+      },
+      peas: {
+        name: "Four Seasons Garden Peas", pack: 290, packText: "290g tin", unit: "g", protein: 5.3,
+        page: "https://www.aldi.co.uk/product/four-seasons-garden-peas-in-water-000000000000335874",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/bc9ff8eb-a124-461d-8c32-570cec199d6f/Garden%20Peas%20in%20Water", emoji: "🟢"
+      },
+      redLentils: {
+        name: "Worldwide Foods Red Lentils", pack: 500, packText: "500g bag", unit: "g", protein: 24,
+        page: "https://www.aldi.co.uk/product/worldwide-foods-red-lentils-000000000000336258",
+        image: "https://dm.emea.cms.aldi.cx/is/image/aldiprodeu/product/jpg/scaleWidth/500/f66c5469-e966-403e-8c01-dbd8185e4403/Red%20Lentils", emoji: "🫘"
+      }
+    };
+
+    const pantry = {
+      passata: { name: "Passata", emoji: "🍅", aisle: "Tins & sauces", pack: 500, packText: "500g carton", protein: 1.4 },
+      spinach: { name: "Baby spinach", emoji: "🥬", aisle: "Fresh produce", pack: 100, packText: "100g bag", protein: 2.9 },
+      onion: { name: "Onion", emoji: "🧅", aisle: "Fresh produce", countName: "onion", unit: "each", pack: null, proteinEach: .8 },
+      garlic: { name: "Garlic cloves", emoji: "🧄", aisle: "Fresh produce", unit: "clove", pack: null, proteinEach: .1 },
+      italianHerbs: { name: "Italian dried herbs", emoji: "🌿", aisle: "Herbs & spices", unit: "tsp", pack: null, proteinEach: 0 },
+      chilliFlakes: { name: "Chilli flakes", emoji: "🌶️", aisle: "Herbs & spices", unit: "tsp", pack: null, proteinEach: 0 },
+      curryPowder: { name: "Mild curry powder", emoji: "🟠", aisle: "Herbs & spices", unit: "tsp", pack: null, proteinEach: 0 },
+      garamMasala: { name: "Garam masala", emoji: "🟠", aisle: "Herbs & spices", unit: "tsp", pack: null, proteinEach: 0 },
+      cumin: { name: "Ground cumin", emoji: "🟤", aisle: "Herbs & spices", unit: "tsp", pack: null, proteinEach: 0 },
+      kidneyPepper: { name: "Red pepper", emoji: "🫑", aisle: "Fresh produce", countName: "red pepper", unit: "each", pack: null, proteinEach: 1.2 },
+      choppedTomatoes: { name: "Chopped tomatoes", emoji: "🍅", aisle: "Tins & sauces", pack: 400, packText: "400g tin", protein: .9 },
+      sweetcorn: { name: "Sweetcorn", emoji: "🌽", aisle: "Tins & sauces", pack: 198, packText: "198g tin", protein: 3.2 },
+      soySauce: { name: "Soy sauce", emoji: "🫙", aisle: "Tins & sauces", unit: "tbsp", pack: null, proteinEach: 1.5 },
+      ginger: { name: "Fresh ginger", emoji: "🫚", aisle: "Fresh produce", unit: "cm piece", pack: null, proteinEach: .1 },
+      carrot: { name: "Carrot", emoji: "🥕", aisle: "Fresh produce", unit: "each", pack: null, proteinEach: .6 },
+      mixedVeg: { name: "Frozen mixed vegetables", emoji: "🥕", aisle: "Frozen", pack: 500, packText: "500g bag", protein: 3.5 },
+      couscous: { name: "Couscous", emoji: "🍚", aisle: "Rice & pasta", pack: 500, packText: "500g pack", protein: 12 },
+      cucumber: { name: "Cucumber", emoji: "🥒", aisle: "Fresh produce", countName: "cucumber", unit: "each", pack: null, proteinEach: .8 },
+      lemon: { name: "Lemon", emoji: "🍋", aisle: "Fresh produce", countName: "lemon", unit: "each", pack: null, proteinEach: .6 },
+      parsley: { name: "Fresh parsley", emoji: "🌿", aisle: "Fresh produce", unit: "handful", pack: null, proteinEach: .5 },
+      sesameOil: { name: "Sesame oil", emoji: "🫙", aisle: "Tins & sauces", unit: "tsp", pack: null, proteinEach: 0 },
+      sesameSeeds: { name: "Sesame seeds", emoji: "⚪", aisle: "Herbs & spices", unit: "tbsp", pack: null, proteinEach: 1.7 },
+      saltPepper: { name: "Salt & black pepper", emoji: "🧂", aisle: "Herbs & spices", unit: "to taste", pack: null, proteinEach: 0 },
+      springOnion: { name: "Spring onions", emoji: "🌱", aisle: "Fresh produce", countName: "spring onion", unit: "each", pack: null, proteinEach: .2 },
+      smokedPaprika: { name: "Smoked paprika", emoji: "🟠", aisle: "Herbs & spices", unit: "tsp", pack: null, proteinEach: 0 }
+    };
+
+    const recipes = [
+      {
+        id: "arrabbiata", title: "Quick mince arrabbiata", cuisine: "Italian", icon: "🍝", product: "mince", time: 20,
+        summary: "A speedy, spicy tomato pasta with a generous plant-mince boost.",
+        ingredients: [
+          { key: "mince", amount: 300, unit: "g", aisle: "Chilled & frozen", product: "mince" },
+          { key: "pasta", amount: 150, unit: "g", aisle: "Rice & pasta", product: "pasta" },
+          { key: "passata", amount: 250, unit: "g", aisle: "Tins & sauces" },
+          { key: "spinach", amount: 80, unit: "g", aisle: "Fresh produce" },
+          { key: "onion", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "garlic", amount: 2, unit: "clove", aisle: "Fresh produce" },
+          { key: "italianHerbs", amount: 1, unit: "tsp", aisle: "Herbs & spices" },
+          { key: "chilliFlakes", amount: .5, unit: "tsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Bring a pan of water to the boil and cook the spaghetti until just tender. Drain, reserving a splash of pasta water.", "Meanwhile, soften the chopped onion in a non-stick pan with a splash of water. Add the mince and garlic; cook for 5–6 minutes.", "Stir in the passata, herbs and chilli. Simmer for 5 minutes, fold in the spinach, then toss with the pasta. Split into two containers."]
+      },
+      {
+        id: "lentil-masala", title: "Lentil & mince masala rice", cuisine: "Indian", icon: "🍛", product: "lentilTin", time: 15,
+        summary: "Comforting spiced lentils and savoury mince over quick wholegrain rice.",
+        ingredients: [
+          { key: "mince", amount: 250, unit: "g", aisle: "Chilled & frozen", product: "mince" },
+          { key: "lentilTin", amount: 200, unit: "g", aisle: "Tins & cans", product: "lentilTin" },
+          { key: "rice", amount: 250, unit: "g", aisle: "Rice & pasta", product: "rice" },
+          { key: "passata", amount: 150, unit: "g", aisle: "Tins & sauces" },
+          { key: "spinach", amount: 80, unit: "g", aisle: "Fresh produce" },
+          { key: "onion", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "garamMasala", amount: 1, unit: "tsp", aisle: "Herbs & spices" },
+          { key: "cumin", amount: .5, unit: "tsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Warm the rice pouch according to the pack instructions.", "In a wide pan, soften the chopped onion with a splash of water. Add the mince, garam masala and cumin; cook for 5 minutes, stirring often.", "Add drained lentils and passata. Simmer for 5 minutes, stir through the spinach until wilted, then serve with rice. Divide into two portions."]
+      },
+      {
+        id: "smoky-chilli", title: "Smoky kidney bean chilli bowls", cuisine: "Mexican", icon: "🌶️", product: "kidneyBeans", time: 15,
+        summary: "One-pan chilli with beans, plant mince and a warm wholegrain rice base.",
+        ingredients: [
+          { key: "mince", amount: 250, unit: "g", aisle: "Chilled & frozen", product: "mince" },
+          { key: "kidneyBeans", amount: 240, unit: "g", aisle: "Tins & cans", product: "kidneyBeans" },
+          { key: "rice", amount: 250, unit: "g", aisle: "Rice & pasta", product: "rice" },
+          { key: "choppedTomatoes", amount: 200, unit: "g", aisle: "Tins & sauces" },
+          { key: "kidneyPepper", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "onion", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "smokedPaprika", amount: 1, unit: "tsp", aisle: "Herbs & spices" },
+          { key: "cumin", amount: .5, unit: "tsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Warm the rice pouch following the instructions on pack.", "Soften the chopped onion and diced pepper in a non-stick pan with a splash of water. Add the mince and paprika; cook for 5 minutes.", "Stir in drained kidney beans, chopped tomatoes and cumin. Simmer for 6 minutes, season, then split the chilli and rice between two portions."]
+      },
+      {
+        id: "ginger-noodles", title: "Ginger-soy no-chicken noodles", cuisine: "Asian", icon: "🥢", product: "noChicken", time: 20,
+        summary: "Golden garlic-herb pieces tossed with quick vegetables and wholewheat noodles.",
+        ingredients: [
+          { key: "noChicken", amount: 240, unit: "g", aisle: "Chilled & frozen", product: "noChicken" },
+          { key: "pasta", amount: 150, unit: "g", aisle: "Rice & pasta", product: "pasta" },
+          { key: "mixedVeg", amount: 200, unit: "g", aisle: "Frozen" },
+          { key: "soySauce", amount: 1, unit: "tbsp", aisle: "Tins & sauces" },
+          { key: "ginger", amount: 1, unit: "cm piece", aisle: "Fresh produce" },
+          { key: "garlic", amount: 1, unit: "clove", aisle: "Fresh produce" },
+          { key: "sesameSeeds", amount: 1, unit: "tbsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Cook the spaghetti until tender, then drain and keep a small mug of pasta water.", "While it cooks, heat the no-chicken pieces in a non-stick pan for 7–8 minutes. Add the frozen vegetables and cook until piping hot.", "Stir in soy sauce, grated ginger and garlic. Add the spaghetti and a splash of pasta water; toss well and finish with sesame seeds. Portion into two bowls."]
+      },
+      {
+        id: "couscous-bowl", title: "Herby chickpea couscous bowl", cuisine: "Mediterranean", icon: "🍋", product: "chickpeas", time: 15,
+        summary: "Lemon, parsley, fluffy couscous and protein-rich plant pieces in a fresh bowl.",
+        ingredients: [
+          { key: "noChicken", amount: 240, unit: "g", aisle: "Chilled & frozen", product: "noChicken" },
+          { key: "couscous", amount: 150, unit: "g", aisle: "Rice & pasta" },
+          { key: "chickpeas", amount: 130, unit: "g", aisle: "Tins & cans", product: "chickpeas" },
+          { key: "cucumber", amount: .5, unit: "each", aisle: "Fresh produce" },
+          { key: "lemon", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "parsley", amount: 1, unit: "handful", aisle: "Fresh produce" },
+          { key: "saltPepper", amount: 1, unit: "to taste", aisle: "Herbs & spices" }
+        ],
+        steps: ["Put the couscous in a bowl, cover with boiling water according to the pack, then leave for 5 minutes and fluff with a fork.", "Cook the no-chicken pieces in a non-stick pan until piping hot. Drain and rinse the chickpeas; dice the cucumber and chop the parsley.", "Fold chickpeas, lemon zest and juice, cucumber and parsley through the couscous. Add the hot pieces, season and divide into two portions."]
+      },
+      {
+        id: "tofu-dal", title: "Quick tofu & red lentil dal", cuisine: "Indian", icon: "🫘", product: "tofu", time: 25,
+        summary: "A hearty tomato dal with crisp tofu and a ready-in-minutes rice side.",
+        ingredients: [
+          { key: "tofu", amount: 200, unit: "g", aisle: "Chilled & frozen", product: "tofu" },
+          { key: "redLentils", amount: 100, unit: "g", aisle: "Tins & cans", product: "redLentils" },
+          { key: "rice", amount: 250, unit: "g", aisle: "Rice & pasta", product: "rice" },
+          { key: "passata", amount: 150, unit: "g", aisle: "Tins & sauces" },
+          { key: "spinach", amount: 80, unit: "g", aisle: "Fresh produce" },
+          { key: "curryPowder", amount: 1, unit: "tsp", aisle: "Herbs & spices" },
+          { key: "garlic", amount: 1, unit: "clove", aisle: "Fresh produce" },
+          { key: "saltPepper", amount: 1, unit: "to taste", aisle: "Herbs & spices" }
+        ],
+        steps: ["Rinse the red lentils. Simmer them in a saucepan with 300ml water, passata, curry powder and crushed garlic for 12–15 minutes, stirring occasionally.", "Meanwhile, cube the tofu and brown it in a non-stick pan, turning until golden on the edges. Warm the rice pouch.", "Stir the spinach into the dal until wilted. Add a splash of water if you like it thinner, season, then serve with the tofu and rice. Split into two containers."]
+      },
+      {
+        id: "sesame-tofu", title: "Sesame tofu, peas & rice", cuisine: "Asian", icon: "🍚", product: "tofu", time: 15,
+        summary: "Crisped tofu, sweet garden peas and nutty wholegrain rice in one quick bowl.",
+        ingredients: [
+          { key: "tofu", amount: 400, unit: "g", aisle: "Chilled & frozen", product: "tofu" },
+          { key: "peas", amount: 150, unit: "g", aisle: "Tins & cans", product: "peas" },
+          { key: "rice", amount: 250, unit: "g", aisle: "Rice & pasta", product: "rice" },
+          { key: "soySauce", amount: 1, unit: "tbsp", aisle: "Tins & sauces" },
+          { key: "sesameOil", amount: 1, unit: "tsp", aisle: "Tins & sauces" },
+          { key: "springOnion", amount: 2, unit: "each", aisle: "Fresh produce" },
+          { key: "sesameSeeds", amount: 1, unit: "tbsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Warm the rice pouch and drain the peas.", "Pat the tofu dry and cube it. Brown in a non-stick pan, turning the cubes for 6–8 minutes. Add peas for the final 2 minutes.", "Stir in soy sauce and sesame oil, then serve over rice with sliced spring onion and sesame seeds. Divide evenly into two portions."]
+      },
+      {
+        id: "smoked-tofu-pasta", title: "Smoky tofu tomato pasta", cuisine: "Italian", icon: "🍅", product: "smokedTofu", time: 20,
+        summary: "Smoky tofu, tomato and spinach folded through wholewheat spaghetti.",
+        ingredients: [
+          { key: "smokedTofu", amount: 360, unit: "g", aisle: "Chilled & frozen", product: "smokedTofu" },
+          { key: "pasta", amount: 120, unit: "g", aisle: "Rice & pasta", product: "pasta" },
+          { key: "passata", amount: 200, unit: "g", aisle: "Tins & sauces" },
+          { key: "spinach", amount: 100, unit: "g", aisle: "Fresh produce" },
+          { key: "garlic", amount: 1, unit: "clove", aisle: "Fresh produce" },
+          { key: "italianHerbs", amount: 1, unit: "tsp", aisle: "Herbs & spices" },
+          { key: "saltPepper", amount: 1, unit: "to taste", aisle: "Herbs & spices" }
+        ],
+        steps: ["Cook the spaghetti in a pan of boiling water until just tender, then drain.", "Cube the smoked tofu and brown in a non-stick pan for 5–6 minutes. Add garlic, herbs and passata; simmer for 5 minutes.", "Fold in the spinach until wilted, then toss through the spaghetti. Divide the pan into two equal portions."]
+      },
+      {
+        id: "chipotle-tofu", title: "Chipotle tofu & bean rice bowls", cuisine: "Mexican", icon: "🌮", product: "tofu", time: 20,
+        summary: "Smoky tofu, kidney beans and sweetcorn over a quick wholegrain rice base.",
+        ingredients: [
+          { key: "tofu", amount: 400, unit: "g", aisle: "Chilled & frozen", product: "tofu" },
+          { key: "kidneyBeans", amount: 120, unit: "g", aisle: "Tins & cans", product: "kidneyBeans" },
+          { key: "rice", amount: 250, unit: "g", aisle: "Rice & pasta", product: "rice" },
+          { key: "sweetcorn", amount: 100, unit: "g", aisle: "Tins & sauces" },
+          { key: "kidneyPepper", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "smokedPaprika", amount: 1, unit: "tsp", aisle: "Herbs & spices" },
+          { key: "cumin", amount: .5, unit: "tsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Warm the rice pouch and drain the sweetcorn and kidney beans.", "Cube and brown the tofu in a non-stick pan. Add diced red pepper and cook for 4–5 minutes until softened.", "Stir in the beans, sweetcorn, paprika and cumin; heat through for 3 minutes. Serve over rice and divide into two portions."]
+      },
+      {
+        id: "curry-pea-mince", title: "Curry mince & pea rice", cuisine: "Indian", icon: "🍛", product: "mince", time: 15,
+        summary: "Mildly spiced plant mince and garden peas with ready-in-minutes rice.",
+        ingredients: [
+          { key: "mince", amount: 300, unit: "g", aisle: "Chilled & frozen", product: "mince" },
+          { key: "peas", amount: 150, unit: "g", aisle: "Tins & cans", product: "peas" },
+          { key: "rice", amount: 250, unit: "g", aisle: "Rice & pasta", product: "rice" },
+          { key: "spinach", amount: 50, unit: "g", aisle: "Fresh produce" },
+          { key: "onion", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "curryPowder", amount: 1, unit: "tsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Warm the rice pouch and drain the peas.", "Soften the chopped onion in a non-stick pan with a splash of water. Add the mince and curry powder; cook for 6–7 minutes, stirring often.", "Stir in peas and spinach until hot and wilted. Spoon over the rice and split into two portions."]
+      },
+      {
+        id: "smoky-tofu-noodles", title: "Smoky tofu & pea noodles", cuisine: "Asian", icon: "🥢", product: "smokedTofu", time: 20,
+        summary: "A simple soy-glazed noodle bowl with smoky tofu and sweet garden peas.",
+        ingredients: [
+          { key: "smokedTofu", amount: 360, unit: "g", aisle: "Chilled & frozen", product: "smokedTofu" },
+          { key: "pasta", amount: 100, unit: "g", aisle: "Rice & pasta", product: "pasta" },
+          { key: "peas", amount: 100, unit: "g", aisle: "Tins & cans", product: "peas" },
+          { key: "soySauce", amount: 1, unit: "tbsp", aisle: "Tins & sauces" },
+          { key: "ginger", amount: 1, unit: "cm piece", aisle: "Fresh produce" },
+          { key: "sesameSeeds", amount: 1, unit: "tbsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Cook the spaghetti until just tender, then drain and reserve a splash of cooking water.", "Cube and brown the smoked tofu in a non-stick pan. Add the peas and a splash of water; cover for 2–3 minutes until hot.", "Add soy sauce and grated ginger. Toss with the noodles and a little cooking water; top with sesame seeds and serve in two bowls."]
+      },
+      {
+        id: "tuscan-pieces", title: "Tuscan tomato & lentil pieces", cuisine: "Italian", icon: "🍲", product: "noChicken", time: 20,
+        summary: "Garlicky tomato, lentils and plant-based pieces for a fast one-pan supper.",
+        ingredients: [
+          { key: "noChicken", amount: 240, unit: "g", aisle: "Chilled & frozen", product: "noChicken" },
+          { key: "lentilTin", amount: 200, unit: "g", aisle: "Tins & cans", product: "lentilTin" },
+          { key: "choppedTomatoes", amount: 200, unit: "g", aisle: "Tins & sauces" },
+          { key: "spinach", amount: 80, unit: "g", aisle: "Fresh produce" },
+          { key: "onion", amount: 1, unit: "each", aisle: "Fresh produce" },
+          { key: "garlic", amount: 1, unit: "clove", aisle: "Fresh produce" },
+          { key: "italianHerbs", amount: 1, unit: "tsp", aisle: "Herbs & spices" }
+        ],
+        steps: ["Brown the no-chicken pieces in a non-stick pan for 7–8 minutes, turning regularly.", "Add chopped onion and garlic with a splash of water. Cook for 3 minutes, then add tomatoes, drained lentils and Italian herbs.", "Simmer for 6 minutes until piping hot. Fold in spinach until wilted and divide the one-pan meal into two portions."]
+      }
+    ];
+
+    const cuisines = ["All", ...new Set(recipes.map(recipe => recipe.cuisine))];
+    const planKey = "aldi-protein-kitchen-plan-v1";
+    const checkedKey = "aldi-protein-kitchen-checked-v1";
+    let plan = readStore(planKey, {});
+    let checkedItems = readStore(checkedKey, {});
+    let activeCuisine = "All";
+    let shuffledOrder = recipes.map(recipe => recipe.id);
+    let visibleRecipeIds = null;
+    let toastTimer;
+
+    function readStore(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key)) || fallback; } catch { return fallback; }
+    }
+    function saveState() {
+      localStorage.setItem(planKey, JSON.stringify(plan));
+      localStorage.setItem(checkedKey, JSON.stringify(checkedItems));
+    }
+    function productFor(ingredient) { return ingredient.product ? products[ingredient.product] : null; }
+    function ingredientMeta(ingredient) {
+      if (products[ingredient.key]) return products[ingredient.key];
+      return pantry[ingredient.key] || { name: ingredient.key, emoji: "🥗", aisle: ingredient.aisle || "Other", proteinEach: 0 };
+    }
+    function proteinOf(ingredient) {
+      const product = productFor(ingredient);
+      const meta = product || pantry[ingredient.key] || {};
+      if (ingredient.unit === "g") return ingredient.amount * (meta.protein ?? 0) / 100;
+      return ingredient.amount * (meta.proteinEach ?? 0);
+    }
+    function proteinPerPortion(recipe) {
+      return recipe.ingredients.reduce((sum, ingredient) => sum + proteinOf(ingredient), 0) / 2;
+    }
+    function prettyAmount(amount, unit, itemKey) {
+      const rounded = Math.round(amount * 10) / 10;
+      const display = Number.isInteger(rounded) ? String(rounded) : String(rounded).replace("0.5", "½");
+      if (unit === "to taste") return "to taste";
+      if (unit === "each") {
+        const meta = pantry[itemKey] || {};
+        const name = meta.countName || "item";
+        return `${display} ${name}${rounded === 1 ? "" : "s"}`;
+      }
+      if (unit === "clove") return `${display} ${rounded === 1 ? "clove" : "cloves"}`;
+      if (unit === "handful") return `${display} ${rounded === 1 ? "handful" : "handfuls"}`;
+      return `${display} ${unit}`;
+    }
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+    }
+    function productThumb(productId, sizeClass = "ingredient-thumb") {
+      const product = products[productId];
+      if (!product) return `<span class="${sizeClass}" aria-hidden="true"><span class="emoji">🥗</span></span>`;
+      return `<a class="${sizeClass}" href="${product.page}" target="_blank" rel="noreferrer" aria-label="View ${escapeHtml(product.name)} on Aldi UK"><img src="${product.image}" alt="${escapeHtml(product.name)} product pack" loading="lazy" onerror="this.style.display='none'"></a>`;
+    }
+    function ingredientIcon(ingredient, sizeClass = "ingredient-thumb") {
+      const product = productFor(ingredient);
+      if (product) return productThumb(ingredient.product, sizeClass);
+      const meta = ingredientMeta(ingredient);
+      return `<span class="${sizeClass}" aria-hidden="true"><span class="emoji">${meta.emoji || "🥗"}</span></span>`;
+    }
+    function renderFilters() {
+      document.getElementById("filters").innerHTML = cuisines.map(cuisine =>
+        `<button type="button" class="filter-btn ${activeCuisine === cuisine ? "active" : ""}" data-cuisine="${escapeHtml(cuisine)}" aria-pressed="${activeCuisine === cuisine}">${cuisine === "All" ? "All cuisines" : cuisine}</button>`
+      ).join("");
+      document.querySelectorAll(".filter-btn").forEach(button => button.addEventListener("click", () => {
+        activeCuisine = button.dataset.cuisine;
+        visibleRecipeIds = null;
+        renderFilters();
+        renderRecipes();
+      }));
+    }
+    function renderRecipeCard(recipe) {
+      const amountInPlan = plan[recipe.id] || 0;
+      const protein = proteinPerPortion(recipe);
+      const firstImage = products[recipe.product];
+      const featuredIngredients = recipe.ingredients.filter(item => item.product).slice(0, 3);
+      const extraCount = Math.max(0, recipe.ingredients.length - featuredIngredients.length);
+      return `<article class="meal-card" data-recipe="${recipe.id}">
+        <div class="meal-photo" style="--fallback-color:${firstImage ? "#f3edde" : "#e7eee0"}">
+          <span class="photo-fallback" aria-hidden="true">${recipe.icon}</span>
+          ${firstImage ? `<img src="${firstImage.image}" alt="${escapeHtml(firstImage.name)} from Aldi" loading="lazy" onerror="this.style.display='none'">` : ""}
+          <span class="photo-sticker">ALDI INGREDIENTS</span>
+        </div>
+        <div class="meal-card-body">
+          <div class="tag-row"><span class="cuisine-tag"><span aria-hidden="true">${recipe.icon}</span>${recipe.cuisine}</span><span class="time-label">⏱ ${recipe.time} min</span></div>
+          <h3>${recipe.title}</h3>
+          <p class="summary">${recipe.summary}</p>
+          <div class="meal-stats">
+            <span class="stat">🍽 <strong>2</strong> portions</span>
+            <span class="stat">🧑‍🍳 one cook</span>
+            <span class="stat protein">💪 ~${Math.round(protein)}g protein / portion</span>
+          </div>
+          <div class="ingredients-peek" aria-label="Aldi product ingredients">
+            ${featuredIngredients.map(item => ingredientIcon(item)).join("")}
+            <span class="more-ingredients">${extraCount ? `+ ${extraCount} ingredients` : "Aldi product packs"}</span>
+          </div>
+          <div class="card-actions"><button type="button" class="primary-btn ${amountInPlan ? "added" : ""}" data-add="${recipe.id}" aria-label="Add one batch of ${escapeHtml(recipe.title)}">${amountInPlan ? `✓ Added · ${amountInPlan} batch${amountInPlan === 1 ? "" : "es"} in plan` : "+ Add to my plan"}</button></div>
+          <details class="recipe-details">
+            <summary>Ingredients & quick method</summary>
+            <div class="details-columns">
+              <div><h4>For two portions</h4><div class="detail-ingredient-list">
+                ${recipe.ingredients.map(item => {
+                  const meta = ingredientMeta(item);
+                  const product = productFor(item);
+                  const content = `${ingredientIcon(item, "ingredient-thumb")}<span class="detail-ingredient-name">${escapeHtml(product ? product.name : meta.name)}</span><span class="detail-ingredient-amount">${prettyAmount(item.amount, item.unit, item.key)}</span>`;
+                  return `<div class="detail-ingredient">${content}</div>`;
+                }).join("")}
+              </div></div>
+              <div><h4>Method · ${recipe.time} minutes</h4><ol class="steps">${recipe.steps.map(step => `<li>${step}</li>`).join("")}</ol></div>
+            </div>
+          </details>
+        </div>
+      </article>`;
+    }
+    function renderRecipes() {
+      const filteredRecipes = shuffledOrder.map(id => recipes.find(recipe => recipe.id === id)).filter(recipe => activeCuisine === "All" || recipe.cuisine === activeCuisine);
+      const recipesToShow = visibleRecipeIds ? visibleRecipeIds.map(id => recipes.find(recipe => recipe.id === id)).filter(recipe => recipe && (activeCuisine === "All" || recipe.cuisine === activeCuisine)) : filteredRecipes;
+      const grid = document.getElementById("recipes-grid");
+      grid.innerHTML = recipesToShow.length ? recipesToShow.map(renderRecipeCard).join("") : `<div class="empty-filter">No meals in this cuisine yet. Choose another filter.</div>`;
+      const note = document.getElementById("ideas-note");
+      if (visibleRecipeIds) {
+        note.innerHTML = `Showing ${recipesToShow.length} fresh picks from ${filteredRecipes.length} recipes. <button id="show-all-ideas" type="button">Show all ${filteredRecipes.length}</button>`;
+        document.getElementById("show-all-ideas").addEventListener("click", () => { visibleRecipeIds = null; renderRecipes(); });
+      } else {
+        note.textContent = `Showing all ${filteredRecipes.length} quick meal ideas.`;
+      }
+      document.querySelectorAll("[data-add]").forEach(button => button.addEventListener("click", () => addRecipe(button.dataset.add)));
+    }
+    function addRecipe(id) {
+      plan[id] = (plan[id] || 0) + 1;
+      saveState();
+      renderRecipes();
+      renderPlanner();
+      const recipe = recipes.find(item => item.id === id);
+      showToast(`${recipe.title} added · 2 portions`);
+    }
+    function updateRecipeCount(id, delta) {
+      plan[id] = Math.max(0, (plan[id] || 0) + delta);
+      if (!plan[id]) delete plan[id];
+      saveState();
+      renderRecipes();
+      renderPlanner();
+    }
+    function allBatches() { return Object.values(plan).reduce((sum, count) => sum + count, 0); }
+    function collectShopping() {
+      const items = {};
+      recipes.forEach(recipe => {
+        const batches = plan[recipe.id] || 0;
+        if (!batches) return;
+        recipe.ingredients.forEach(ingredient => {
+          const meta = ingredientMeta(ingredient);
+          const key = `${ingredient.key}-${ingredient.unit}`;
+          if (!items[key]) items[key] = { key, id: ingredient.key, amount: 0, unit: ingredient.unit, aisle: ingredient.aisle || meta.aisle || "Other", product: ingredient.product || (products[ingredient.key] ? ingredient.key : null), name: meta.name };
+          items[key].amount += ingredient.amount * batches;
+        });
+      });
+      return Object.values(items).sort((a, b) => a.aisle.localeCompare(b.aisle) || a.name.localeCompare(b.name));
+    }
+    function packHint(item) {
+      const product = item.product ? products[item.product] : null;
+      const meta = pantry[item.id] || {};
+      const packSize = product?.pack || meta.pack;
+      const packText = product?.packText || meta.packText;
+      if (!packSize || item.unit !== "g") return "";
+      const count = Math.ceil(item.amount / packSize);
+      return `Buy ${count} × ${packText}`;
+    }
+    function renderPlanContent() {
+      const container = document.getElementById("plan-content");
+      const selected = recipes.filter(recipe => plan[recipe.id]);
+      if (!selected.length) {
+        container.innerHTML = `<div class="empty-plan"><span class="basket" aria-hidden="true">🧺</span><strong>Your plan is waiting</strong><span>Add any meal to create a two-portion cooking batch. One for lunch, one for dinner.</span></div>`;
+        return;
+      }
+      container.innerHTML = `<div class="plan-list">${selected.map(recipe => `<div class="plan-item">
+        <div><div class="plan-item-title">${recipe.title}</div><div class="plan-item-sub">${recipe.cuisine} · ${recipe.time} min · ${Math.round(proteinPerPortion(recipe))}g protein per portion</div></div>
+        <div class="quantity-control" aria-label="Quantity of ${escapeHtml(recipe.title)}"><button class="icon-btn" type="button" data-qty="${recipe.id}" data-delta="-1" aria-label="Remove one batch">−</button><span class="quantity-number">${plan[recipe.id]}</span><button class="icon-btn" type="button" data-qty="${recipe.id}" data-delta="1" aria-label="Add one batch">+</button></div>
+      </div>`).join("")}</div><div class="panel-actions"><button class="outline-btn" id="clear-plan" type="button">Clear meals</button><button class="outline-btn" id="show-shopping" type="button">View shopping list →</button></div>`;
+      document.querySelectorAll("[data-qty]").forEach(button => button.addEventListener("click", () => updateRecipeCount(button.dataset.qty, Number(button.dataset.delta))));
+      document.getElementById("clear-plan").addEventListener("click", () => {
+        plan = {};
+        checkedItems = {};
+        saveState();
+        renderRecipes();
+        renderPlanner();
+        showToast("Meal plan cleared");
+      });
+      document.getElementById("show-shopping").addEventListener("click", () => selectTab("shopping"));
+    }
+    function renderShoppingContent() {
+      const container = document.getElementById("shopping-content");
+      const items = collectShopping();
+      if (!items.length) {
+        container.innerHTML = `<div class="empty-plan"><span class="basket" aria-hidden="true">📝</span><strong>Your list will appear here</strong><span>Add a recipe and we’ll combine repeated ingredients for you.</span></div>`;
+        return;
+      }
+      const byAisle = items.reduce((groups, item) => { (groups[item.aisle] ||= []).push(item); return groups; }, {});
+      container.innerHTML = `<p class="list-note">Quantities cover ${allBatches()} cooking batch${allBatches() === 1 ? "" : "es"} (${allBatches() * 2} portions). Tick items as you shop.</p>
+        ${Object.entries(byAisle).map(([aisle, group]) => `<section><h3 class="aisle-heading">${escapeHtml(aisle)}</h3>${group.map(item => {
+          const product = item.product ? products[item.product] : null;
+          const meta = pantry[item.id] || {};
+          const emoji = product?.emoji || meta.emoji || "🥗";
+          const image = product?.image;
+          const link = product?.page;
+          return `<label class="shop-row ${checkedItems[item.key] ? "checked" : ""}">
+            <input type="checkbox" data-check="${escapeHtml(item.key)}" ${checkedItems[item.key] ? "checked" : ""} aria-label="Mark ${escapeHtml(item.name)} as collected">
+            <span class="shop-thumb">${image ? `<img src="${image}" alt="" loading="lazy" onerror="this.style.display='none'">` : `<span class="emoji" aria-hidden="true">${emoji}</span>`}</span>
+            <span class="shop-text"><span class="shop-name">${escapeHtml(item.name)}</span><span class="shop-amount">${prettyAmount(item.amount, item.unit, item.id)}${packHint(item) ? ` · ${escapeHtml(packHint(item))}` : ""}</span></span>
+            ${link ? `<a class="shop-product-link" href="${link}" target="_blank" rel="noreferrer" aria-label="View ${escapeHtml(item.name)} on Aldi UK">ALDI ↗</a>` : ""}
+          </label>`;
+        }).join("")}</section>`).join("")}
+        <div class="panel-actions"><button class="outline-btn" id="copy-list" type="button">Copy list</button><button class="outline-btn" id="print-list" type="button">Print</button></div>`;
+      document.querySelectorAll("[data-check]").forEach(input => input.addEventListener("change", () => {
+        checkedItems[input.dataset.check] = input.checked;
+        saveState();
+        input.closest(".shop-row").classList.toggle("checked", input.checked);
+      }));
+      document.getElementById("copy-list").addEventListener("click", copyShoppingList);
+      document.getElementById("print-list").addEventListener("click", () => window.print());
+    }
+    function renderPlanner() {
+      const batches = allBatches();
+      const items = collectShopping();
+      document.getElementById("batch-badge").innerHTML = `<span>${batches}</span><small>${batches === 1 ? "batch" : "batches"}</small>`;
+      document.getElementById("total-portions").textContent = String(batches * 2);
+      document.getElementById("unique-items").textContent = String(items.length);
+      document.getElementById("meal-tab-count").textContent = String(batches);
+      renderPlanContent();
+      renderShoppingContent();
+    }
+    function selectTab(which) {
+      const isPlan = which === "plan";
+      document.getElementById("plan-tab").classList.toggle("active", isPlan);
+      document.getElementById("shopping-tab").classList.toggle("active", !isPlan);
+      document.getElementById("plan-tab").setAttribute("aria-selected", String(isPlan));
+      document.getElementById("shopping-tab").setAttribute("aria-selected", String(!isPlan));
+      document.getElementById("plan-content").hidden = !isPlan;
+      document.getElementById("shopping-content").hidden = isPlan;
+    }
+    function shoppingListText() {
+      const items = collectShopping();
+      const byAisle = items.reduce((groups, item) => { (groups[item.aisle] ||= []).push(item); return groups; }, {});
+      return ["ALDI VEGAN MEAL PLAN SHOPPING LIST", `${allBatches()} cooking batches · ${allBatches() * 2} portions`, "", ...Object.entries(byAisle).flatMap(([aisle, group]) => [aisle.toUpperCase(), ...group.map(item => `☐ ${item.name} — ${prettyAmount(item.amount, item.unit, item.id)}${packHint(item) ? ` (${packHint(item)})` : ""}`), ""])].join("\n");
+    }
+    async function copyShoppingList() {
+      try {
+        await navigator.clipboard.writeText(shoppingListText());
+        showToast("Shopping list copied");
+      } catch {
+        const area = document.createElement("textarea");
+        area.value = shoppingListText(); document.body.appendChild(area); area.select(); document.execCommand("copy"); area.remove();
+        showToast("Shopping list copied");
+      }
+    }
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 2400);
+    }
+    function shuffleRecipes() {
+      const pool = shuffledOrder.map(id => recipes.find(recipe => recipe.id === id)).filter(recipe => activeCuisine === "All" || recipe.cuisine === activeCuisine);
+      const previous = new Set(visibleRecipeIds || []);
+      let candidates = pool.filter(recipe => !previous.has(recipe.id));
+      const count = Math.min(4, pool.length);
+      if (candidates.length < count) candidates = [...pool];
+      for (let i = candidates.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+      }
+      visibleRecipeIds = candidates.slice(0, count).map(recipe => recipe.id);
+      renderRecipes();
+      showToast("Fresh meal ideas are ready");
+    }
+
+    document.getElementById("shuffle-btn").addEventListener("click", shuffleRecipes);
+    document.getElementById("plan-tab").addEventListener("click", () => selectTab("plan"));
+    document.getElementById("shopping-tab").addEventListener("click", () => selectTab("shopping"));
+    renderFilters();
+    renderRecipes();
+    renderPlanner();
+  </script>
+</body>
+</html>
